@@ -24,29 +24,34 @@ public class httpfs
 {
 
 	public static void main(String[] args) throws IOException{
+		System.out.println("httpfs is a simple file server.\r\n" + "usage: httpfs [-v] [-p PORT] [-d PATH-TO-DIR]\r\n"
+				+ " -v Prints debugging messages.\r\n"
+				+ " -p Specifies the port number that the server will listen and serve at.\r\n"
+				+ " Default is 8080.\r\n" + " -d Specifies the directory that the server will use to read/write\r\n"
+				+ "requested files. Default is the current directory when launching the\r\n" + "application.");
+		
 		int server_port = 8080; // Defines at which port the server will be listening at
-		try( ServerSocket server = new ServerSocket(server_port) ){
-			System.out.println("Server has been instantiated at port " + server_port);
-
-			// Server is a process that runs continously and awaits for requests from clients
-			while(true){
-				// Is this a blocking or non-blocking call?
-				// What would you need to do to service multiple clients at the same time?
-				try ( Socket client_connection = server.accept() ) 
+		for(int i = 0; i < args.length; i++) 
+		{
+			if(args[i].equalsIgnoreCase("-v")) 
+			{
+				System.out.println("Versal is true");
+			}
+			//port
+			if(args[i].equalsIgnoreCase("-p")) 
+			{
+				System.out.println("Port is true");
+				try
 				{
-					
-					BufferedReader br = new BufferedReader(new InputStreamReader(client_connection.getInputStream()));
-					String str = br.readLine();
-					if(str.contains("GET")) 
-					{
-						
-					}
-					PrintWriter outbount_client = new PrintWriter(client_connection.getOutputStream(), true);
-					outbount_client.println("Well hello to you too." + str);
-					client_connection.close();
-
+					server_port = Integer.parseInt(args[i+1]);
 				}
+				catch(Exception e) 
+				{
+					System.out.println("port has to a number");
+				}		
 			}
 		}
+		fileserver fs = new fileserver(server_port);
+		fs.run();
 	}
 }

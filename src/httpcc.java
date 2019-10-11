@@ -7,7 +7,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Scanner;
 
-public class httpcccc {
+public class httpcc {
 	private static String command = "";
 	public static void main(String[] args) throws Exception {
 		input();

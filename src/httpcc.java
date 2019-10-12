@@ -3,14 +3,33 @@ import java.io.BufferedWriter;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Scanner;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 public class httpcc {
-	private static String command = "";
+	private static String commandArr [];
 	public static void main(String[] args) throws Exception {
-		input();
+		String getCommand = "";
+		String sendMessage ="";
+		String method ="";
+		String data = null;
+		int port = 8080;
+		String host = "localhost";
+		URI uri;
+		String url;
+		String urlArg = null;
+		if(args.length>0) 
+		{
+			commandArr = args;
+		}
+		else
+		{
+			input();
+		}
 		Socket socket = null;
 	
 
@@ -21,25 +40,77 @@ public class httpcc {
 		} finally {
 			// Closing the socket
 			try {
-				String host = "localhost";
-	            int port = 8080;
-	            InetAddress address = InetAddress.getByName(host);
-	            socket = new Socket(host, port);
-	 
-
 				// Send the message to the server
+	            /*
 				java.io.OutputStream os = socket.getOutputStream();
 				OutputStreamWriter osw = new OutputStreamWriter(os);
 				BufferedWriter bw = new BufferedWriter(osw);
-
-		
+				*/
+				if(commandArr.length == 0) 
+				{
+					System.out.println("miss query");
+				}
+				else
+				{
+					try {
+				        for(int i = 0; i<commandArr.length;i++) 
+				        {
+				        	if(commandArr[i].equalsIgnoreCase("get")) 
+				        	{
+				        		method = "get";
+				        		if(commandArr[i+1].contains("/")) 
+				        		{
+				        			getCommand = commandArr[i+1];
+				        		}			        		
+				        	}
+				        	if(commandArr[i].equalsIgnoreCase("post")) 
+				        	{
+				        		method = "post";
+				        		
+				        	}
+				        	if(commandArr[i].equalsIgnoreCase("-d"))
+				        	{
+				        		data = commandArr[i+1];
+				        		
+				        	}
+				        	if(commandArr[i].contains("http://"))
+				        	{
+				        		uri = new URI(commandArr[i]);
+				        		url = uri.getHost();
+				        		int ports =uri.getPort();
+				        		urlArg = uri.getRawPath();
+				        	}
+				        	
+				        }
+					}
+					catch(Exception e) {
+						System.out.println("query has misstake");
+					}  			        
+				}
 				
-				String sendMessage = getCommand().toString() +"\n";
+				InetAddress address = InetAddress.getByName(host);
+				socket = new Socket(host, port);
+				
+				PrintWriter wtr = new PrintWriter(socket.getOutputStream());
+				if(urlArg!=null) 
+				{
+					getCommand = urlArg;
+				}
+				
+				sendMessage = method + " " + getCommand + " HTTP/1.0 \r\nUser-Agent: Concordia\r\n";
+				
+				if(data!=null)
+				{
+					sendMessage = sendMessage + "Content-Length:" +Integer.toString(data.length()) +"\r\n"+ "\""+data+ "\"";
+				}
+				
+				sendMessage = sendMessage +"\r\n";
+				
+				
 				System.out.println("Here is the message:" + sendMessage);
-				bw.write(sendMessage);
-				
-				
-				bw.flush();
+				wtr.println(sendMessage);
+				wtr.println("");
+				wtr.flush();
 				System.out.println("Message sent to the server : " + sendMessage);
 				System.out.println("End of message");
 				
@@ -60,9 +131,9 @@ public class httpcc {
 					
 				}
 				
-				bw.flush();
+				//bw.flush();
 				br.close();
-				bw.close();
+				wtr.close();
 				System.out.println("End of message");
 				
 				//System.out.println("Message received from the server : " + message);
@@ -84,16 +155,9 @@ public class httpcc {
 		String input = "";
 		System.out.println("Please input your command:");
 		input = scan.nextLine();
-		setCommand(input);
+		commandArr = input.split("\\s+");
+		
 	}
 
-	private static void setCommand(String c) {
-		command = c;
-
-	}
-
-	static String getCommand() {
-		return command;
-	}
 
 }

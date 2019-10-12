@@ -26,12 +26,8 @@ public class httpfs
 	public static void main(String[] args) throws IOException{
 		int server_port = 8080; // Defines at which port the server will be listening at
 		String path = "/Users/fokpoonkai/Desktop/test";
-		
-		System.out.println("httpfs is a simple file server.\r\n" + "usage: httpfs [-v] [-p PORT] [-d PATH-TO-DIR]\r\n"
-				+ " -v Prints debugging messages.\r\n"
-				+ " -p Specifies the port number that the server will listen and serve at.\r\n"
-				+ " Default is 8080.\r\n" + " -d Specifies the directory that the server will use to read/write\r\n"
-				+ "requested files. Default is the current directory when launching the\r\n" + "application.");
+		boolean isHelp = false;
+		boolean isError = false;
 		
 		for(int i = 0; i < args.length; i++) 
 		{
@@ -50,12 +46,43 @@ public class httpfs
 				catch(Exception e) 
 				{
 					System.out.println("port has to a number");
+					isError = false;
 				}		
 			}
+			//path
+			if(args[i].equalsIgnoreCase("-d"))
+			{
+				path = args[i+1];
+			}
+			//help
+			if(args[0].equalsIgnoreCase("help"))
+			{
+				isHelp = true;
+			}
+
 		}
-		System.out.println("Server has been instantiated at port " + server_port);
-		System.out.println("Path has been binding at " + path);
-		fileserver fs = new fileserver(server_port,path);
-		fs.run();
+		
+		if(!isHelp&&!isError)
+		{
+			System.out.println("Server has been instantiated at port " + server_port);
+			System.out.println("Path has been binding at " + path);
+			fileserver fs = new fileserver(server_port,path);
+			fs.run();
+		}
+		else 
+		{
+			if(isError)
+			{
+				System.out.println("The query is wrong");
+			}
+			else
+			{
+				System.out.println("httpfs is a simple file server.\r\n" + "usage: httpfs [-v] [-p PORT] [-d PATH-TO-DIR]\r\n"
+						+ " -v Prints debugging messages.\r\n"
+						+ " -p Specifies the port number that the server will listen and serve at.\r\n"
+						+ " Default is 8080.\r\n" + " -d Specifies the directory that the server will use to read/write\r\n"
+						+ "requested files. Default is the current directory when launching the\r\n" + "application.");
+			}
+		}
 	}
 }

@@ -38,7 +38,6 @@ public class httpfs
 			//port
 			if(args[i].equalsIgnoreCase("-p")) 
 			{
-				System.out.println("Port is true");
 				try
 				{
 					server_port = Integer.parseInt(args[i+1]);

@@ -15,9 +15,6 @@ public class fileserver {
 	private int server_port;
 	private String [] strArr;
 	private String path;
-	private String http = "";
-	private String userAgent = "";
-	private String data ="";
 	private boolean isError = false;
 	
 	private final static String SERVER_OK = "200 OK";
@@ -34,7 +31,7 @@ public class fileserver {
 	
 	
 	public void run() throws IOException{
-		try( ServerSocket server = new ServerSocket(server_port,1,InetAddress.getLoopbackAddress()) ){
+		try( ServerSocket server = new ServerSocket(server_port,2,InetAddress.getLoopbackAddress()) ){
 			
 			// Server is a process that runs continously and awaits for requests from clients
 			while(true){
@@ -43,54 +40,55 @@ public class fileserver {
 				try ( Socket client_connection = server.accept() ) 
 				{		
 					BufferedReader br = new BufferedReader(new InputStreamReader(client_connection.getInputStream()));
-					String str;
+					int c;
+					int check = 0;
+					StringBuilder response= new StringBuilder();
+
 					
 					PrintWriter outbount_client = new PrintWriter(client_connection.getOutputStream(), true);
 					outbount_client.println("the Folder Path is :" + path);
 					//outbount_client.println("Command received. Command is : " + str);
-					String sss ="";
-						while((str = br.readLine())!=null)
+					
+						while((c = br.read())!=-1)
 						{ 
-							if(str.equalsIgnoreCase("")) 
+							response.append((char)c ) ; 
+							
+							if((char)c =='\r') {
+								check ++;
+							}
+							else if ((char)c =='\n')
+							{
+								check ++;
+							}
+							else
+							{
+								check = 0;
+							}
+							if(check == 4) 
 							{
 								break;
 							}
-							
-							if(str.substring(0,1).equals("\"")&&str.substring(str.length()-1,str.length()).equals("\"")) 
-							{
-								data = str.substring(1, str.length()-1);
-							}
-							outbount_client.println(str);
-							sss = sss +" " +str;
-						}
-	
-					strArr = sss.split("\\s+");
+						};
+
+						String result = response.toString();
+						System.out.println(result);
+						
+					strArr = result.split("\\s+");
 					
-					for(int i = 0 ; i < strArr.length ; i++)
-					{
-						if(strArr[i].contains("HTTP"))
-						{
-							this.http = strArr[i];
-						}
-						if(strArr[i].contains("User-Agent"))
-						{
-							this.userAgent = strArr[i]+" "+strArr[i+1];
-						}						
-					}
+					Request.instance().setStrArr(strArr);
 					
-					for(int i = 0 ; i < strArr.length ; i++) 
-					{
-						if(strArr[i].equalsIgnoreCase("Get"))
+
+						if(Request.instance().getMethod().equalsIgnoreCase("get"))
 						{
-							if(strArr[i+1].equalsIgnoreCase("/")&&strArr[i+1].length()==1) 
+							if(Request.instance().getCommand().equalsIgnoreCase("/")&&Request.instance().getCommand().length()==1) 
 							{
 								allfiles(outbount_client);
 								//System.out.println("print all files in the Folder");
 							}
-							else if(strArr[i+1].contains("/")&&strArr[i+1].length()>1)
+							else if(Request.instance().getCommand().contains("/")&&Request.instance().getCommand().length()>1)
 							{
 								//System.out.println("find the specific file in foler");
-								sendfiles(outbount_client,strArr[i+1]);
+								sendfiles(outbount_client,Request.instance().getCommand());
 							}
 							else 
 							{	
@@ -98,20 +96,17 @@ public class fileserver {
 							}				
 						}
 						//post
-						else if(strArr[i].equalsIgnoreCase("Post")) 
+						else if(Request.instance().getMethod().equalsIgnoreCase("Post")) 
 						{	
 							System.out.println("Post");				
-							System.out.println(strArr[i+1]);
 							try {
-								postGetFile(strArr[i+1],outbount_client,data);
+								postGetFile(Request.instance().getCommand(),outbount_client,Request.instance().getData());
 							} catch (Exception e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}
 						}
 
-					}
-					
 					if(isError) 
 					{
 						Bad_request(outbount_client);
@@ -131,18 +126,19 @@ public class fileserver {
 		String contextLength = "Content-Length :"+ Integer.toString(listOfFiles.length);
 		String contentType = "Content-Type: text/htm";
 
-		response = http +" "+SERVER_OK+"\r\n"+ userAgent +"\r\n\r\n";
+		response = Request.instance().getHttp() +" "+SERVER_OK+"\r\n"+ Request.instance().getUserAgent() +"\r\n";
 			for (int i = 0; i < listOfFiles.length; i++)
 			{
 				//just for testing
 				response = response + listOfFiles[i]+"\r\n";
 				//System.out.println(listOfFiles[i]);
 				//out.println(listOfFiles[i]);     	
-			}   	
+			}
+			response = response +"\r\n";
 		}
 		catch(Exception e) 
 		{
-			response = http +" "+SERVER_Not_Found+"\r\n"+ userAgent +"\r\n\r\n";
+			response = Request.instance().getHttp() +" "+SERVER_Not_Found+"\r\n"+ Request.instance().getUserAgent() +"\r\n\r\n";
 		}
 		
 	 out.print(response);
@@ -161,25 +157,23 @@ public class fileserver {
 		//System.out.println(path);
 		//System.out.println(fullFilePath);
 		String contentType = "Content-Type: text/html";
-		response = http +" "+SERVER_OK+"\r\n"+ userAgent +"\r\n"+ contentType+"\r\n";
+		response = Request.instance().getHttp() +" "+SERVER_OK+"\r\n"+ Request.instance().getUserAgent() +"\r\n"+ contentType+"\r\n";
 		FileReader fr = new FileReader(fullFilePath); 
     	BufferedReader br = new BufferedReader(fr);
-    	String s; 
-    	
+    	String s;   	
 	    	while((s = br.readLine()) != null) 
 	    	{
 	    		len = len +s.length();
 	    		temp = temp + s +"\r\n";
-	    	} 
-
+	    	}
 		}
 		catch(Exception e) 
 		{
-			response = http +" "+SERVER_Not_Found+"\r\n"+ userAgent +"\r\n\r\n";
+			response = Request.instance().getHttp() +" "+SERVER_Not_Found+"\r\n"+ Request.instance().getUserAgent() +"\r\n\r\n";
 		}
 		String contextLength = "Content-Length :"+Integer.toString(len);
-		response = response + contextLength +"\r\n";
-		response = response + temp +"\r\n";
+		 response = response + contextLength +"\r\n";
+		 response = response + temp +"\r\n\r\n";
 		 out.print(response);
 		 out.println();
 		 out.flush();
@@ -202,7 +196,7 @@ public class fileserver {
            output.print(content);
            output.flush();
            output.close();            
-           String response = http +" "+SERVER_Created+"\r\n"+ userAgent +"\r\n\r\n";
+           String response = Request.instance().getHttp() +" "+SERVER_Created+"\r\n"+ Request.instance().getUserAgent() +"\r\n\r\n";
            	outStream.println(response);
        
 	        outStream.println();
@@ -210,7 +204,7 @@ public class fileserver {
 	        outStream.close();
 		  }
 		  catch(Exception e) {
-	           String response = http +" "+SERVER_Forbidden+"\r\n"+ userAgent +"\r\n\r\n";
+	           String response = Request.instance().getHttp() +" "+SERVER_Forbidden+"\r\n"+ Request.instance().getUserAgent() +"\r\n\r\n";
 	           	outStream.println(response);
 	       
 		        outStream.println();
@@ -226,7 +220,8 @@ public class fileserver {
 	}
 	
 	public void Bad_request(PrintWriter out) {
-		String response = http +" "+SERVER_Bad_Request+"\r\n"+ userAgent +"\r\n\r\n";
+		String response = Request.instance().getHttp() +" "+SERVER_Bad_Request+"\r\n"+ Request.instance().getUserAgent() +"\r\n\r\n";
 		out.println(response);
 	}
+	
 }

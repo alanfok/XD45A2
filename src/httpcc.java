@@ -79,8 +79,7 @@ public class httpcc {
 				        		url = uri.getHost();
 				        		int ports =uri.getPort();
 				        		urlArg = uri.getRawPath();
-				        	}
-				        	
+				        	}    	
 				        }
 					}
 					catch(Exception e) {
@@ -104,12 +103,11 @@ public class httpcc {
 					sendMessage = sendMessage + "Content-Length:" +Integer.toString(data.length()) +"\r\n"+ "\""+data+ "\"";
 				}
 				
-				sendMessage = sendMessage +"\r\n";
+				sendMessage = sendMessage +"\r\n\r\n";
 				
 				
 				System.out.println("Here is the message:" + sendMessage);
 				wtr.println(sendMessage);
-				wtr.println("");
 				wtr.flush();
 				System.out.println("Message sent to the server : " + sendMessage);
 				System.out.println("End of message");

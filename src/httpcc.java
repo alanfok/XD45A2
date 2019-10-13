@@ -65,13 +65,14 @@ public class httpcc {
 				        	}
 				        	if(commandArr[i].equalsIgnoreCase("post")) 
 				        	{
-				        		method = "post";
-				        		
+				        		method = "post";			        		
 				        	}
+				        	
+				        	
 				        	if(commandArr[i].equalsIgnoreCase("-d"))
 				        	{
-				        		data = commandArr[i+1];
-				        		
+				        			data = commandArr[i+1];				        			
+
 				        	}
 				        	if(commandArr[i].contains("http://"))
 				        	{

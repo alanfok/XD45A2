@@ -98,7 +98,7 @@ public class fileserver {
 						//post
 						else if(Request.instance().getMethod().equalsIgnoreCase("Post")) 
 						{	
-							System.out.println("Post");				
+							System.out.println("Post");		
 							try {
 								postGetFile(Request.instance().getCommand(),outbount_client,Request.instance().getData());
 							} catch (Exception e) {

@@ -37,11 +37,12 @@ public class Request {
 	public void setStrArr(String[] strArr) {
 		this.strArr = strArr;
 		try
-		{
-			method = strArr[0];
-			command = strArr[1];
+		{		
 			
-				for(int i = 0 ; i < strArr.length ; i++)
+			    method = strArr[0];
+				command = strArr[1];
+			
+				for(int i = 2 ; i < strArr.length ; i++)
 				{
 					if(strArr[i].contains("HTTP"))
 					{
@@ -63,12 +64,25 @@ public class Request {
 					{
 						this.data = strArr[i].substring(1, strArr[i].length()-1);
 					}
+					if(strArr[i].substring(0, 1).equalsIgnoreCase("\""))
+					{
+						this.data = "";
+						for(int j = i ; j<strArr.length ; j++) 
+						{
+							this.data = this.data +strArr[j];
+							if(strArr[j].substring(strArr[j].length()-1, strArr[j].length()).equalsIgnoreCase("\"")) 
+							{
+								break;
+							}
+						}
+					}
+					
 		
 				}
 			}
 			catch(Exception e)
 			{
-					
+				System.out.println(e);
 			}
 		}
 	

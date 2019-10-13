@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Scanner;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -70,12 +71,16 @@ public class fileserver {
 							}
 						};
 
-						String result = response.toString();
-						System.out.println(result);
-						
+
+					String result = response.toString();
+					String strs ="";
+					
+					
+					String strArrs[] = result.split("\r\n");
 					strArr = result.split("\\s+");
 					
-					Request.instance().setStrArr(strArr);
+					
+					Request.instance().setStrArr(strArrs);
 					
 
 						if(Request.instance().getMethod().equalsIgnoreCase("get"))

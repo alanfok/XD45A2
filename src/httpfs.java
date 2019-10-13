@@ -25,7 +25,7 @@ public class httpfs
 
 	public static void main(String[] args) throws IOException{
 		int server_port = 8080; // Defines at which port the server will be listening at
-		String path = "/Users/fokpoonkai/Desktop/test";
+		String path = ".";
 		boolean isHelp = false;
 		boolean isError = false;
 		

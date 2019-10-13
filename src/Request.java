@@ -38,7 +38,36 @@ public class Request {
 		this.strArr = strArr;
 		try
 		{		
-			
+			for(int i = 0 ; i < strArr.length ; i++)
+			{
+				if(strArr[i].contains("HTTP/"))
+				{
+					String temp [] = strArr[i].split("\\s+");
+					try {
+						this.method = temp[0];
+						this.command = temp[1];
+						this.http = temp[2];
+;					}
+					catch(Exception e)
+					{
+						
+					}
+				}
+				if(strArr[i].contains("User-Agent"))
+				{
+					this.userAgent = strArr[i];
+				}
+				if(strArr[i].contains("Content-Length"))
+				{
+					this.Content_Length = strArr[i];
+				}
+				if(strArr[i].substring(0, 1).equalsIgnoreCase("\"")&&strArr[i].substring(strArr[i].length()-1, strArr[i].length()).equalsIgnoreCase("\"")) 
+				{
+					this.data = strArr[i].substring(1, strArr[i].length()-1);
+				}
+				
+			}
+			/*
 			    method = strArr[0];
 				command = strArr[1];
 			
@@ -69,16 +98,18 @@ public class Request {
 						this.data = "";
 						for(int j = i ; j<strArr.length ; j++) 
 						{
-							this.data = this.data +strArr[j];
+							this.data = this.data +" "+strArr[j];
 							if(strArr[j].substring(strArr[j].length()-1, strArr[j].length()).equalsIgnoreCase("\"")) 
 							{
 								break;
 							}
 						}
+						this.data = this.data.substring(1, strArr[i].length()-1);
 					}
-					
+				
 		
 				}
+				*/
 			}
 			catch(Exception e)
 			{

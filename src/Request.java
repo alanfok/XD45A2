@@ -10,10 +10,13 @@ public class Request {
 	private String command = "";
 	private String data= "";
 	private String Content_Length ="";
-	private ArrayList<String> Content_Type = new ArrayList<String>();
+	private ArrayList<String> Header = new ArrayList<String>();
 	
 	
 	
+	public ArrayList<String> getHeader() {
+		return Header;
+	}
 	public String getContent_Length() {
 		return Content_Length;
 	}
@@ -36,6 +39,11 @@ public class Request {
 	
 	public void setStrArr(String[] strArr) {
 		this.strArr = strArr;
+		if(strArr.length>1) 
+		{
+			this.data = strArr[1];
+		}
+		strArr = strArr[0].split("\r\n");
 		try
 		{		
 			for(int i = 0 ; i < strArr.length ; i++)
@@ -61,10 +69,14 @@ public class Request {
 				{
 					this.Content_Length = strArr[i];
 				}
-				if(strArr[i].substring(0, 1).equalsIgnoreCase("\"")&&strArr[i].substring(strArr[i].length()-1, strArr[i].length()).equalsIgnoreCase("\"")) 
+				if(i!=0)
 				{
-					this.data = strArr[i].substring(1, strArr[i].length()-1);
+					this.Header.add(strArr[i]);
 				}
+//				if(strArr[i].substring(0, 1).equalsIgnoreCase("\"")&&strArr[i].substring(strArr[i].length()-1, strArr[i].length()).equalsIgnoreCase("\"")) 
+//				{
+//					this.data = strArr[i].substring(1, strArr[i].length()-1);
+//				}
 				
 			}
 			/*

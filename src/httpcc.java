@@ -9,6 +9,7 @@ import java.net.Socket;
 import java.util.Scanner;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashMap;
 
 public class httpcc {
 	private static String commandArr [];
@@ -22,6 +23,7 @@ public class httpcc {
 		URI uri;
 		String url;
 		String urlArg = null;
+		HashMap <String,String> header = new HashMap <String,String>();
 		if(args.length>0) 
 		{
 			commandArr = args;
@@ -55,19 +57,7 @@ public class httpcc {
 					try {
 				        for(int i = 0; i<commandArr.length;i++) 
 				        {
-				        	if(commandArr[i].equalsIgnoreCase("get")) 
-				        	{
-				        		method = "get";
-				        		if(commandArr[i+1].contains("/")) 
-				        		{
-				        			getCommand = commandArr[i+1];
-				        		}			        		
-				        	}
-				        	if(commandArr[i].equalsIgnoreCase("post")) 
-				        	{
-				        		method = "post";			        		
-				        	}
-				        	
+				        	method = commandArr[0];
 				        	
 				        	if(commandArr[i].equalsIgnoreCase("-d"))
 				        	{
@@ -80,7 +70,15 @@ public class httpcc {
 				        		url = uri.getHost();
 				        		int ports =uri.getPort();
 				        		urlArg = uri.getRawPath();
-				        	}    	
+				        	}
+				        	if(commandArr[i].equalsIgnoreCase("-h"))
+				        	{
+				        		if(commandArr[i+1].contains(":"))
+				        		{
+				        			String temp [] = commandArr[i+1].split(":");
+				        			header.put(temp[0], temp[1]);
+				        		}
+				        	}
 				        }
 					}
 					catch(Exception e) {
@@ -99,9 +97,20 @@ public class httpcc {
 				
 				sendMessage = method + " " + getCommand + " HTTP/1.0 \r\nUser-Agent: Concordia\r\n";
 				
+				if(header.size()>0) 
+				{
+					for (String key : header.keySet()) {
+						sendMessage = sendMessage + key+":"+header.get(key)+"\r\n";
+						}
+				}
+				
 				if(data!=null)
 				{
-					sendMessage = sendMessage + "Content-Length:" +Integer.toString(data.length()) +"\r\n"+ "\""+data+ "\"";
+					sendMessage = sendMessage + "Content-Length:" +Integer.toString(data.length()) +"\r\n\r\n"+ "\""+data+ "\"";
+				}
+				else
+				{
+					sendMessage = sendMessage +"\r\n\r\n"+ "\""+data+ "\"";
 				}
 				
 				sendMessage = sendMessage +"\r\n\r\n";
@@ -109,6 +118,7 @@ public class httpcc {
 				
 				System.out.println("Here is the message:" + sendMessage);
 				wtr.println(sendMessage);
+				wtr.println("");
 				wtr.flush();
 				System.out.println("Message sent to the server : " + sendMessage);
 				System.out.println("End of message");

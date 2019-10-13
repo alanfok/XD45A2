@@ -43,12 +43,12 @@ public class fileserver {
 					BufferedReader br = new BufferedReader(new InputStreamReader(client_connection.getInputStream()));
 					int c;
 					int check = 0;
+					int scendcheck = 0;
 					StringBuilder response= new StringBuilder();
 
 					
 					PrintWriter outbount_client = new PrintWriter(client_connection.getOutputStream(), true);
 					outbount_client.println("the Folder Path is :" + path);
-					//outbount_client.println("Command received. Command is : " + str);
 					
 						while((c = br.read())!=-1)
 						{ 
@@ -67,6 +67,10 @@ public class fileserver {
 							}
 							if(check == 4) 
 							{
+								scendcheck ++;
+							}
+							if(scendcheck == 2) 
+							{
 								break;
 							}
 						};
@@ -76,10 +80,9 @@ public class fileserver {
 					String strs ="";
 					
 					
-					String strArrs[] = result.split("\r\n");
+					String strArrs[] = result.split("\r\n\r\n");
 					strArr = result.split("\\s+");
-					
-					
+	
 					Request.instance().setStrArr(strArrs);
 					
 
@@ -133,9 +136,28 @@ public class fileserver {
 		this.sever_file = new File(path);
 		String[] listOfFiles = sever_file.list();	
 		String contextLength = "Content-Length :"+ Integer.toString(listOfFiles.length);
-		String contentType = "Content-Type: text/htm";
-
-		response = Request.instance().getHttp() +" "+SERVER_OK+"\r\n"+ Request.instance().getUserAgent() +"\r\n";
+		String contentType = "Content-Type: text/html";
+		boolean checkType = false;
+		response = Request.instance().getHttp() +" "+SERVER_OK+"\r\n";
+		
+		if(Request.instance().getHeader().size()>0)
+		{
+		      for (int counter = 0; counter < Request.instance().getHeader().size(); counter++) { 	
+		    	  if(Request.instance().getHeader().get(counter).toLowerCase().contains("content-type"))
+		    	  {
+		    		  checkType = true;
+		    	  }
+		    	  response = response + Request.instance().getHeader().get(counter) + "\r\n";
+		      }   	
+		}
+		
+		if(!checkType)
+		{
+			response = response + contentType+ "\r\n";
+		}
+		
+		response = response + "\r\n";
+		
 			for (int i = 0; i < listOfFiles.length; i++)
 			{
 				//just for testing
@@ -143,11 +165,18 @@ public class fileserver {
 				//System.out.println(listOfFiles[i]);
 				//out.println(listOfFiles[i]);     	
 			}
-			response = response +"\r\n";
+			response = response +"\r\n\r\n";
 		}
 		catch(Exception e) 
 		{
-			response = Request.instance().getHttp() +" "+SERVER_Not_Found+"\r\n"+ Request.instance().getUserAgent() +"\r\n\r\n";
+			response = Request.instance().getHttp() +" "+SERVER_Not_Found+"\r\n"+ Request.instance().getUserAgent() +"\r\n";
+			if(Request.instance().getHeader().size()>0)
+			{
+			      for (int counter = 0; counter < Request.instance().getHeader().size(); counter++) { 		      
+			    	  response = response + Request.instance().getHeader().get(counter) + "\r\n";
+			      }   	
+			}
+			response = response + "\r\n";
 		}
 		
 	 out.print(response);
@@ -163,10 +192,28 @@ public class fileserver {
 	String temp ="";
 	try{
 		String fullFilePath = path + filePath;
-		//System.out.println(path);
-		//System.out.println(fullFilePath);
 		String contentType = "Content-Type: text/html";
-		response = Request.instance().getHttp() +" "+SERVER_OK+"\r\n"+ Request.instance().getUserAgent() +"\r\n"+ contentType+"\r\n";
+		Boolean checkType = false;
+		response = Request.instance().getHttp() +" "+SERVER_OK+"\r\n";
+		if(Request.instance().getHeader().size()>0)
+		{
+		      for (int counter = 0; counter < Request.instance().getHeader().size(); counter++) { 	
+		    	  if(Request.instance().getHeader().get(counter).toLowerCase().contains("content-type"))
+		    	  {
+		    		  checkType = true;
+		    	  }
+		    	  if(!Request.instance().getHeader().get(counter).toLowerCase().contains("content-length"))
+		    	  {	  
+		    		  response = response + Request.instance().getHeader().get(counter) + "\r\n";
+		    	  }
+		      }   	
+		}
+		
+		if(!checkType)
+		{
+			response = response + contentType + "\r\n";
+		}
+		
 		FileReader fr = new FileReader(fullFilePath); 
     	BufferedReader br = new BufferedReader(fr);
     	String s;   	
@@ -175,14 +222,26 @@ public class fileserver {
 	    		len = len +s.length();
 	    		temp = temp + s +"\r\n";
 	    	}
+	    	String contextLength = "Content-Length :"+Integer.toString(len);
+	    	response = response + contextLength +"\r\n\r\n";
+	    	response = response + temp +"\r\n\r\n";
 		}
 		catch(Exception e) 
 		{
-			response = Request.instance().getHttp() +" "+SERVER_Not_Found+"\r\n"+ Request.instance().getUserAgent() +"\r\n\r\n";
+			response = Request.instance().getHttp() +" "+SERVER_Not_Found+"\r\n";
+			
+			if(Request.instance().getHeader().size()>0)
+			{
+			      for (int counter = 0; counter < Request.instance().getHeader().size(); counter++) { 	
+			    	  if(Request.instance().getHeader().get(counter).toLowerCase().contains("User-Agent"))
+			    	  {	  
+			    		  response = response + Request.instance().getHeader().get(counter) + "\r\n";
+			    	  }
+			      }   	
+			}
+			response = response +"\r\n";
 		}
-		String contextLength = "Content-Length :"+Integer.toString(len);
-		 response = response + contextLength +"\r\n";
-		 response = response + temp +"\r\n\r\n";
+	
 		 out.print(response);
 		 out.println();
 		 out.flush();
@@ -196,16 +255,32 @@ public class fileserver {
         
 		//need to check if file already exists then overwrite
 		  try {
-		   String createPath = path+fileName;	
-           File file = new File(createPath);
-           file.getParentFile().mkdirs();
-           FileWriter writer = new FileWriter(file, false);
-           PrintWriter output = new PrintWriter(writer);
-
-           output.print(content);
-           output.flush();
-           output.close();            
-           String response = Request.instance().getHttp() +" "+SERVER_Created+"\r\n"+ Request.instance().getUserAgent() +"\r\n\r\n";
+			   Boolean checkType = false;
+			   String contentType = "Content-Type: text/html";
+			   String createPath = path+fileName;	
+	           File file = new File(createPath);
+	           file.getParentFile().mkdirs();
+	           FileWriter writer = new FileWriter(file, false);
+	           PrintWriter output = new PrintWriter(writer);
+	           output.print(content);
+	           output.flush();
+	           output.close();            
+	           String response = Request.instance().getHttp() +" "+SERVER_Created+"\r\n";
+		   		if(Request.instance().getHeader().size()>0)
+		   		{
+		   		      for (int counter = 0; counter < Request.instance().getHeader().size(); counter++) { 	
+		   		    	  if(Request.instance().getHeader().get(counter).toLowerCase().contains("content-type"))
+		   		    	  {
+		   		    		  checkType = true;
+		   		    	  }
+		   		    	  response = response + Request.instance().getHeader().get(counter) + "\r\n";
+		   		      }   	
+		   		}
+	   		
+	   		if(!checkType)
+	   		{
+	   			response = response + contentType+ "\r\n";
+	   		}
            	outStream.println(response);
        
 	        outStream.println();

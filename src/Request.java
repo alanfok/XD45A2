@@ -5,7 +5,7 @@ public class Request {
 	public static Request request = null;
 	private String method = "";
 	private String strArr [];
-	private String http = "";
+	private String http = "HTTP/1.0";
 	private String userAgent = "";
 	private String command = "";
 	private String data= "";
@@ -36,33 +36,42 @@ public class Request {
 	
 	public void setStrArr(String[] strArr) {
 		this.strArr = strArr;
-		method = strArr[0];
-		command = strArr[1];
-		for(int i = 0 ; i < strArr.length ; i++)
+		try
 		{
-			if(strArr[i].contains("HTTP"))
-			{
-				this.http = strArr[i];
+			method = strArr[0];
+			command = strArr[1];
+			
+				for(int i = 0 ; i < strArr.length ; i++)
+				{
+					if(strArr[i].contains("HTTP"))
+					{
+						this.http = strArr[i];
+					}
+					if(strArr[i].contains("User-Agent"))
+					{
+						this.userAgent = strArr[i]+" "+strArr[i+1];
+					}
+					if(strArr[i].contains("Content-Length"))
+					{
+						this.Content_Length = strArr[i];
+					}
+					if(strArr[i].contains("Content-Type"))
+					{
+						Content_Type.add(strArr[i]);
+					}
+					if(strArr[i].substring(0, 1).equalsIgnoreCase("\"")&&strArr[i].substring(strArr[i].length()-1, strArr[i].length()).equalsIgnoreCase("\"")) 
+					{
+						this.data = strArr[i].substring(1, strArr[i].length()-1);
+					}
+		
+				}
 			}
-			if(strArr[i].contains("User-Agent"))
+			catch(Exception e)
 			{
-				this.userAgent = strArr[i]+" "+strArr[i+1];
+					
 			}
-			if(strArr[i].contains("Content-Length"))
-			{
-				this.Content_Length = strArr[i];
-			}
-			if(strArr[i].contains("Content-Type"))
-			{
-				Content_Type.add(strArr[i]);
-			}
-			if(strArr[i].substring(0, 1).equalsIgnoreCase("\"")&&strArr[i].substring(strArr[i].length()-1, strArr[i].length()).equalsIgnoreCase("\"")) 
-			{
-				this.data = strArr[i].substring(1, strArr[i].length()-1);
-			}
-
 		}
-	}
+	
 	
 	public String getMethod() {
 		return method;

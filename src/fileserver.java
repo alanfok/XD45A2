@@ -106,6 +106,10 @@ public class fileserver {
 								e.printStackTrace();
 							}
 						}
+						else
+						{
+							Bad_request(outbount_client);
+						}
 
 					if(isError) 
 					{

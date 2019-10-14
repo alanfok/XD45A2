@@ -65,10 +65,8 @@ public class httpfs
 		if(!isHelp&&!isError)
 		{
 			System.out.println("Server has been instantiated at port " + server_port);
-			if(Versal)
-			{
-				System.out.println("Path has been binding at " + path);
-			}
+			System.out.println("Path has been binding at " + path);
+
 			fileserver fs = new fileserver(server_port,path);
 			fs.run();
 		}

@@ -9,8 +9,10 @@ public class Request {
 	private String userAgent = "";
 	private String command = "";
 	private String data= "";
+	private String tempdata [];
 	private String Content_Length ="";
 	private ArrayList<String> Header = new ArrayList<String>();
+	public boolean overwrite = true;
 	
 	
 	
@@ -38,19 +40,39 @@ public class Request {
 	
 	
 	public void setStrArr(String[] strArr) {
+		this.Header.clear();
+		this.overwrite = true;
 		this.strArr = strArr;
 		if(strArr.length>1) 
 		{
 			this.data = strArr[1];
+			this.tempdata = this.data.split("\r\n");
+			if(tempdata.length>1)
+			{
+				this.data="";
+				for(int i = 0 ; i < tempdata.length ; i++)
+				{
+					if(tempdata[i].equals("overwrite=true")||tempdata[i].equals("overwrite=false"))
+					{
+						if(tempdata[i].equals("overwrite=false"))
+						{
+							this.overwrite = false;
+						}
+					}
+					else
+					{
+						this.data= this.data + tempdata[i];
+						
+					}
+				}
+			}
 		}
 		strArr = strArr[0].split("\r\n");
 		try
 		{		
 			for(int i = 0 ; i < strArr.length ; i++)
 			{
-				if(strArr[i].contains("HTTP/"))
-				{
-					String temp [] = strArr[i].split("\\s+");
+					String temp [] = strArr[0].split("\\s+");
 					try {
 						this.method = temp[0];
 						this.command = temp[1];
@@ -60,7 +82,7 @@ public class Request {
 					{
 						
 					}
-				}
+				
 				if(strArr[i].contains("User-Agent"))
 				{
 					this.userAgent = strArr[i];

@@ -65,7 +65,7 @@ public class fileserver {
 							{
 								check = 0;
 							}
-							if(check == 4) 
+							if(check == 4 ||check == 8) 
 							{
 								scendcheck ++;
 							}

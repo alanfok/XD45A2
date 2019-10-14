@@ -69,7 +69,7 @@ public class httpcc {
 				        	{
 				        		uri = new URI(commandArr[i]);
 				        		url = uri.getHost();
-				        		int ports =uri.getPort();
+				        		port =uri.getPort();
 				        		urlArg = uri.getRawPath();
 				        	}
 				        	if(commandArr[i].equalsIgnoreCase("-h"))

@@ -111,7 +111,7 @@ public class httpcc {
 				
 				if(data!=null)
 				{
-					sendMessage = sendMessage + "Content-Length:" +Integer.toString(data.length()) +"\r\n\r\n"+ "\""+data+ "\"";
+					sendMessage = sendMessage + "Content-Length:" +Integer.toString(data.length()) +"\r\n\r\n"+ data;
 				}
 				else
 				{

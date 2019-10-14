@@ -28,12 +28,13 @@ public class httpfs
 		String path = ".";
 		boolean isHelp = false;
 		boolean isError = false;
+		boolean Versal = false;
 		
 		for(int i = 0; i < args.length; i++) 
 		{
 			if(args[i].equalsIgnoreCase("-v")) 
 			{
-				System.out.println("Versal is true");
+				System.out.println("Prints debugging messages");
 			}
 			//port
 			if(args[i].equalsIgnoreCase("-p")) 
@@ -64,7 +65,10 @@ public class httpfs
 		if(!isHelp&&!isError)
 		{
 			System.out.println("Server has been instantiated at port " + server_port);
-			System.out.println("Path has been binding at " + path);
+			if(Versal)
+			{
+				System.out.println("Path has been binding at " + path);
+			}
 			fileserver fs = new fileserver(server_port,path);
 			fs.run();
 		}

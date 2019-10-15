@@ -9,7 +9,6 @@ public class Request {
 	private String userAgent = "";
 	private String command = "";
 	private String data= "";
-	private String tempdata [];
 	private String Content_Length ="";
 	private ArrayList<String> Header = new ArrayList<String>();
 	public boolean overwrite = true;
@@ -46,26 +45,6 @@ public class Request {
 		if(strArr.length>1) 
 		{
 			this.data = strArr[1];
-			this.tempdata = this.data.split("\r\n");
-			if(tempdata.length>1)
-			{
-				this.data="";
-				for(int i = 0 ; i < tempdata.length ; i++)
-				{
-					if(tempdata[i].equals("overwrite=true")||tempdata[i].equals("overwrite=false"))
-					{
-						if(tempdata[i].equals("overwrite=false"))
-						{
-							this.overwrite = false;
-						}
-					}
-					else
-					{
-						this.data= this.data + tempdata[i];
-						
-					}
-				}
-			}
 		}
 		strArr = strArr[0].split("\r\n");
 		try
@@ -94,6 +73,13 @@ public class Request {
 				if(i!=0)
 				{
 					this.Header.add(strArr[i]);
+				}
+				if(strArr[i].contains("overwrite")) 
+				{
+					if(strArr[i].contains("false")) 
+					{
+						overwrite=false;
+					}
 				}
 //				if(strArr[i].substring(0, 1).equalsIgnoreCase("\"")&&strArr[i].substring(strArr[i].length()-1, strArr[i].length()).equalsIgnoreCase("\"")) 
 //				{

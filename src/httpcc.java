@@ -20,7 +20,6 @@ public class httpcc {
 		String data = null;
 		int port = 8080;
 		String host = "localhost";
-		String overwrite = null;
 		URI uri;
 		String url;
 		String urlArg = null;
@@ -80,10 +79,6 @@ public class httpcc {
 				        			header.put(temp[0], temp[1]);
 				        		}
 				        	}
-				        	if(commandArr[i].contains("overwrite"))
-				        	{
-				        		overwrite = commandArr[i];
-				        	}
 				        }
 					}
 					catch(Exception e) {
@@ -117,12 +112,6 @@ public class httpcc {
 				{
 					sendMessage = sendMessage +"\r\n\r\n";
 				}
-				
-				if(method.equalsIgnoreCase("post")&&!(overwrite == null)) 
-				{
-					sendMessage = sendMessage +"\r\n"+overwrite;
-				}
-				
 				sendMessage = sendMessage +"\r\n\r\n";
 				
 				

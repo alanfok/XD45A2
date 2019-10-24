@@ -115,15 +115,16 @@ public class httpcc {
 				sendMessage = sendMessage +"\r\n\r\n";
 				
 				
-				System.out.println("Here is the message:" + sendMessage);
-				wtr.println(sendMessage);
-				wtr.println("");
+				System.out.println("\n*************************************************");
+				System.out.println("Message sent to the server:\n" + sendMessage);
+				wtr.print(sendMessage);
+				wtr.print("");
 				wtr.flush();
-				System.out.println("Message sent to the server : " + sendMessage);
-				System.out.println("End of message");
-				System.out.println("-----Server response-----------");
+				
 				
 
+				System.out.println("*************************************************");
+				System.out.println("-----Server response-----------");
 				// Get the return message from the server
 				java.io.InputStream is = socket.getInputStream();
 				InputStreamReader isr = new InputStreamReader(is);
@@ -139,10 +140,12 @@ public class httpcc {
 					
 				}
 				
+				
 				//bw.flush();
 				br.close();
 				wtr.close();
-				System.out.println("End of message");
+				System.out.println("*************************************************");
+				System.out.println("End of message exchange!!! ");
 				
 				//System.out.println("Message received from the server : " + message);
 			} catch (Exception exception) {

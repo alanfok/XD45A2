@@ -220,7 +220,7 @@ public class fileserver {
 		try{
 			if(filePath.contains(".."))
 			{
-				response = Request.instance().getHttp() +" "+SERVER_Forbidden+"\r\n"+ Request.instance().getUserAgent() +"\r\n\r\n";
+				response = Request.instance().getHttp() +" "+SERVER_Forbidden+"\r\nUser-Agent : "+ Request.instance().mHeader.get("User-Agent") +"\r\n\r\n";
 				out.println(response);
 				out.println();
 				out.flush(); 
@@ -264,7 +264,7 @@ public class fileserver {
 				File file = new File(fullFilePath);
 				if(!file.canRead()) 
 				{
-					response = Request.instance().getHttp() +" "+SERVER_Forbidden+"\r\n"+Request.instance().getHeader().get(0)+"\r\n";
+					response = Request.instance().getHttp() +" "+SERVER_Forbidden+"\r\nUser-Agent : "+ Request.instance().mHeader.get("User-Agent")+"\r\n";
 
 					response = response +"\r\n";
 				}
@@ -286,7 +286,7 @@ public class fileserver {
 		}
 		catch(Exception e) 
 		{
-			response = Request.instance().getHttp() +" "+SERVER_Not_Found+"\r\n"+Request.instance().getHeader().get(0)+"\r\n";
+			response = Request.instance().getHttp() +" "+SERVER_Not_Found+"\r\nUser-Agent : "+ Request.instance().mHeader.get("User-Agent")+"\r\n";
 
 			response = response +"\r\n";
 		}
@@ -296,7 +296,16 @@ public class fileserver {
 		out.flush();
 		if(this.isVerbose)
 		{
-			System.out.println(" file is finish printing");
+			File file1 = new File((path+filePath));
+			if (file1.exists())
+			{
+				System.out.println("File " + filePath + " is finish printing");
+			}
+			else
+			{
+				System.out.println("File " + filePath + " doesn't exist");
+			}
+			
 		}
 		out.close();
 	}
@@ -357,7 +366,7 @@ public class fileserver {
 			}
 		}
 		catch(Exception e) {
-			String response = Request.instance().getHttp() +" "+SERVER_Forbidden+"\r\n"+ Request.instance().getUserAgent() +"\r\n\r\n";
+			String response = Request.instance().getHttp() +" "+SERVER_Forbidden+"\r\nUser-Agent : "+ Request.instance().mHeader.get("User-Agent") +"\r\n\r\n";
 			outStream.println(response);
 
 			outStream.println();
@@ -373,7 +382,7 @@ public class fileserver {
 	}
 
 	public void Bad_request(PrintWriter out) {
-		String response = Request.instance().getHttp() +" "+SERVER_Bad_Request+"\r\n"+ Request.instance().getUserAgent() +"\r\n\r\n";
+		String response = Request.instance().getHttp() +" "+SERVER_Bad_Request+"\r\nUser-Agent : "+ Request.instance().mHeader.get("User-Agent") +"\r\n\r\n";
 		out.println(response);
 	}
 

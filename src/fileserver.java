@@ -123,12 +123,20 @@ public class fileserver {
 					//post
 					else if(Request.instance().getMethod().equalsIgnoreCase("Post")) 
 					{	
-						System.out.println("\n*************************************************");	
+						if(this.isVerbose)
+						{
+							System.out.println("\n*************************************************");	
+						}
 						try {
 							postGetFile(Request.instance().getCommand(),outbount_client,Request.instance().getData());
 						} catch (Exception e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
+						}
+						if(this.isVerbose) 
+						{
+							System.out.println("Client disconnent");
+							System.out.println("\n*************************************************");
 						}
 					}
 					else
@@ -159,7 +167,7 @@ public class fileserver {
 			String contentType = "Content-Type: text/html";
 			boolean checkType = false;
 			response = Request.instance().getHttp() +" "+SERVER_OK+"\r\n";
-
+			/*
 			if(Request.instance().getHeader().size()>0)
 			{
 				for (int counter = 0; counter < Request.instance().getHeader().size(); counter++) { 	
@@ -170,7 +178,13 @@ public class fileserver {
 					response = response + Request.instance().getHeader().get(counter) + "\r\n";
 				}   	
 			}
-
+			*/
+			
+			for(String key : Request.instance().mHeader.keySet()) 
+			{
+				String str = key + " : " + Request.instance().mHeader.get(key);
+				response = response  + str + "\r\n";
+			}
 			if(!checkType)
 			{
 				response = response + contentType+ "\r\n";
@@ -222,6 +236,7 @@ public class fileserver {
 				String contentType = "Content-Type: text/html";
 				Boolean checkType = false;
 				response = Request.instance().getHttp() +" "+SERVER_OK+"\r\n";
+				/*
 				if(Request.instance().getHeader().size()>0)
 				{
 					for (int counter = 0; counter < Request.instance().getHeader().size(); counter++) { 	
@@ -235,24 +250,38 @@ public class fileserver {
 						}
 					}   	
 				}
-
+				 */
+				for(String key : Request.instance().mHeader.keySet()) 
+				{
+					String str = key + " : " + Request.instance().mHeader.get(key);
+					response = response  + str + "\r\n";
+				}
 				if(!checkType)
 				{
 					response = response + contentType + "\r\n";
 				}
 
-				FileReader fr = new FileReader(fullFilePath); 
-				BufferedReader br = new BufferedReader(fr);
-				String s;   	
-				while((s = br.readLine()) != null) 
+				File file = new File(fullFilePath);
+				if(!file.canRead()) 
 				{
-					len = len +s.length();
-					temp = temp + s +"\r\n";
+					response = Request.instance().getHttp() +" "+SERVER_Forbidden+"\r\n"+Request.instance().getHeader().get(0)+"\r\n";
+
+					response = response +"\r\n";
 				}
-				String contextLength = "Content-Length :"+Integer.toString(len);
-				response = response + contextLength +"\r\n\r\n";
-				response = response + temp +"\r\n\r\n";
-				
+				else
+				{
+					FileReader fr = new FileReader(file); 
+					BufferedReader br = new BufferedReader(fr);
+					String s;   	
+					while((s = br.readLine()) != null) 
+					{
+						len = len +s.length();
+						temp = temp + s +"\r\n";
+					}
+					String contextLength = "Content-Length :"+Integer.toString(len);
+					response = response + contextLength +"\r\n\r\n";
+					response = response + temp +"\r\n\r\n";
+				}
 			}
 		}
 		catch(Exception e) 
@@ -296,13 +325,10 @@ public class fileserver {
 				FileWriter writer = new FileWriter(file, false);
 				PrintWriter output = new PrintWriter(writer);
 				output.print(content);
-				if(!Request.instance().overwrite)
-				{
-					file.setReadOnly();
-				}
 				output.flush();
 				output.close();            
 				String response = Request.instance().getHttp() +" "+SERVER_Created+"\r\n";
+				/*
 				if(Request.instance().getHeader().size()>0)
 				{
 					for (int counter = 0; counter < Request.instance().getHeader().size(); counter++) { 	
@@ -313,7 +339,12 @@ public class fileserver {
 						response = response + Request.instance().getHeader().get(counter) + "\r\n";
 					}   	
 				}
-
+				 */
+				for(String key : Request.instance().mHeader.keySet()) 
+				{
+					String str = key + " : " + Request.instance().mHeader.get(key);
+					response = response  + str + "\r\n";
+				}
 				if(!checkType)
 				{
 					response = response + contentType+ "\r\n";

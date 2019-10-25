@@ -54,7 +54,7 @@ public class fileserver {
 
 
 					PrintWriter outbount_client = new PrintWriter(client_connection.getOutputStream(), true);
-					outbount_client.println("the Folder Path is :" + path);
+					//outbount_client.println("the Folder Path is :" + path);
 
 					while((c = br.read())!=-1)
 					{ 
@@ -296,7 +296,7 @@ public class fileserver {
 		out.flush();
 		if(this.isVerbose)
 		{
-			System.out.println("Client request to read the file "+ path + filePath);
+			System.out.println(" file is finish printing");
 		}
 		out.close();
 	}

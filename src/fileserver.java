@@ -305,7 +305,7 @@ public class fileserver {
 	{
 		if(this.isVerbose)
 		{
-			System.out.println("POST Receiving file: " + fileName);
+			System.out.println("POST Creating file: "+ path+ fileName);
 		}
 
 		

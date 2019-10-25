@@ -75,7 +75,7 @@ public class httpfs
 				if(isVerbose)
 				{
 					System.out.println("\n Prints debugging messages");
-					fileserver fs = new fileserver(server_port,path);
+					fileserver fs = new fileserver(server_port,path,isVerbose);
 					fs.run();
 					isVerbose=false;
 				}
@@ -94,7 +94,7 @@ public class httpfs
 								// TODO Auto-generated method stub
 							}
 		                }));
-						fileserver fs = new fileserver(server_port,path);
+						fileserver fs = new fileserver(server_port,path,isVerbose);
 						fs.run();
 					} catch(Exception e) {}
 				

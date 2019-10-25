@@ -26,10 +26,10 @@ public class fileserver {
 	private final static String SERVER_Bad_Request  = "400 Bad Request";
 	private final static String SERVER_Forbidden = "403 Forbidden";
 
-	public fileserver(int server_port, String path) {
+	public fileserver(int server_port, String path, boolean verbose) {
 		this.path = path;
 		this.server_port = server_port;
-
+		this.isVerbose = verbose;
 	}
 	
 	
@@ -42,6 +42,10 @@ public class fileserver {
 				// What would you need to do to service multiple clients at the same time?
 				try ( Socket client_connection = server.accept() ) 
 				{		
+					if(isVerbose)
+					{
+						System.out.println("Client connected");
+					}
 					BufferedReader br = new BufferedReader(new InputStreamReader(client_connection.getInputStream()));
 					int c;
 					int check = 0;
@@ -96,11 +100,20 @@ public class fileserver {
 						{
 							allfiles(outbount_client);
 							//System.out.println("print all files in the Folder");
+							if(this.isVerbose) 
+							{
+								System.out.println("Client disconnent");
+							}
 						}
 						else if(Request.instance().getCommand().contains("/")&&Request.instance().getCommand().length()>1)
 						{
 							//System.out.println("find the specific file in folder");
 							sendfiles(outbount_client,Request.instance().getCommand());
+							if(this.isVerbose) 
+							{
+								System.out.println("Client disconnent");
+								System.out.println("\n*************************************************");
+							}
 						}
 						else 
 						{	
@@ -135,6 +148,10 @@ public class fileserver {
 
 	private void allfiles(PrintWriter out){
 		String response = "";
+		if(this.isVerbose) 
+		{
+			System.out.println("Client request the print out files");
+		}
 		try{		
 			this.sever_file = new File(path);
 			String[] listOfFiles = sever_file.list();	
@@ -183,7 +200,6 @@ public class fileserver {
 	}
 
 	private void sendfiles(PrintWriter out , String filePath){
-		System.out.println("Printing list of files in directory");
 		String response = "";
 		int len = 0;
 		String temp ="";
@@ -199,6 +215,10 @@ public class fileserver {
 			else
 			{
 				String fullFilePath = path + filePath;
+				if(this.isVerbose)
+				{
+					System.out.println("Client request to read the file "+ path + filePath);
+				}
 				String contentType = "Content-Type: text/html";
 				Boolean checkType = false;
 				response = Request.instance().getHttp() +" "+SERVER_OK+"\r\n";
@@ -232,6 +252,7 @@ public class fileserver {
 				String contextLength = "Content-Length :"+Integer.toString(len);
 				response = response + contextLength +"\r\n\r\n";
 				response = response + temp +"\r\n\r\n";
+				
 			}
 		}
 		catch(Exception e) 
@@ -244,14 +265,21 @@ public class fileserver {
 		out.print(response);
 		out.println();
 		out.flush();
+		if(this.isVerbose)
+		{
+			System.out.println("Client request to read the file "+ path + filePath);
+		}
 		out.close();
 	}
 
 	private void postGetFile(String fileName, PrintWriter outStream, String content) throws Exception
 	{
-		System.out.println("POST Receiving file: " + fileName);
+		if(this.isVerbose)
+		{
+			System.out.println("POST Receiving file: " + fileName);
+		}
 
-
+		
 		//need to check if file already exists then overwrite
 		try {
 			if(fileName.contains(".."))

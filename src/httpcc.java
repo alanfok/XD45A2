@@ -1,9 +1,5 @@
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
@@ -11,108 +7,13 @@ import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Scanner;
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-
-import UDP.UDPClient;
-
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 public class httpcc {
 	private static String commandArr [];
 	public static void main(String[] args) throws Exception {
-//	    String argArr [] ;
-//	   
-//		int routerPort = 3000;
-//		int serverPort = 8007;
-//		String routerHost = "localhost";
-//		String serverHost = "localhost";
-//		Scanner sc = new Scanner(System.in);
-//	    System.out.println("Enter arg");
-//	    
-//	    String arg = sc.nextLine(); 
-//		URI uri;
-//		String url;
-//		String urlArg = null;
-//	    
-//	   // bytearr  = userName.getBytes();
-//	    
-//	   
-//	   // System.out.println(bytearr);
-//		UDPClient client = new UDPClient(routerHost, routerPort,serverHost,serverPort);
-//		//client.bytearr = bytearr;
-//		//client.runClient();
-//		String getCommand = "";
-//		String sendMessage ="";
-//
-//		argArr = arg.split("\\s+");
-//		for(int i = 0; i<argArr.length ;i++)
-//		{
-//			if(argArr[0].contains("get"))
-//			{
-////        		uri = new URI(commandArr[i]);
-////        		url = uri.getHost();
-////        		port =uri.getPort();
-////        		urlArg = uri.getRawPath();
-//				client.run();
-//				
-//				
-//			}
-//			else if(argArr[0].contains("post"))
-//			{
-//				/*
-//				InputStream is = new BufferedInputStream(new FileInputStream("/Users/fokpoonkai/Desktop/test/test.jpg"));
-//				ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-//				byte[] data = new byte[16384];
-//				int nRead;
-//				while ((nRead = is.read(data, 0, data.length)) != -1) {
-//				  buffer.write(data, 0, nRead);
-//				}
-//				*/
-//				client.run();
-//				byte[] fileArray = Files.readAllBytes(Paths.get("/Users/fokpoonkai/Desktop/test/vvvvvvvv.txt"));
-//				client.run2(fileArray);
-//				
-//
-//				
-////				
-////				
-////				
-////				for(int index = 0; index< fileArray.length;index++)
-////				{	
-////					int dataIndex = 0;
-////					if(dataIndex==1013)
-////					{
-////						data[dataIndex] = fileArray[index];
-////						packetArray.add(data);
-////						data = new byte[1013];
-////						dataIndex = 0;
-////					}
-////					else
-////					{
-////						data[dataIndex] = fileArray[index];
-////						dataIndex ++;
-////					}
-////				}
-////				
-//				
-//	
-//			}
-//			else 
-//			{
-//				System.out.print("Need get or post");
-//			}
-//			
-//
-//			
-//			
-//		}
-		
 		String getCommand = "";
 		String sendMessage ="";
 		String method ="";

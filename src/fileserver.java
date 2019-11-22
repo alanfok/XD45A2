@@ -262,14 +262,14 @@ public class fileserver {
 				}
 
 				File file = new File(fullFilePath);
-//				if(!file.canRead()) 
-//				{
-//					response = Request.instance().getHttp() +" "+SERVER_Forbidden+"\r\nUser-Agent : "+ Request.instance().mHeader.get("User-Agent")+"\r\n";
-//
-//					response = response +"\r\n";
-//				}
-//				else
-//				{
+				if(!file.canRead()) 
+				{
+					response = Request.instance().getHttp() +" "+SERVER_Forbidden+"\r\nUser-Agent : "+ Request.instance().mHeader.get("User-Agent")+"\r\n";
+
+					response = response +"\r\n";
+				}
+				else
+				{
 					FileReader fr = new FileReader(file); 
 					BufferedReader br = new BufferedReader(fr);
 					String s;   	
@@ -281,7 +281,7 @@ public class fileserver {
 					String contextLength = "Content-Length :"+Integer.toString(len);
 					response = response + contextLength +"\r\n\r\n";
 					response = response + temp +"\r\n\r\n";
-				//}
+				}
 			}
 		}
 		catch(Exception e) 

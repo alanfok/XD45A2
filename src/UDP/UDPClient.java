@@ -127,7 +127,7 @@ public class UDPClient {
 				end = this.packetTotal;
 			}
 			System.out.println("tain");
-			recall(start,end);
+			recall(start,end,PacketType.DATA);
 			
 		}
 		
@@ -168,46 +168,26 @@ public class UDPClient {
 			}
 			
 			// put the packet Array if something remaining
-			if(fileArray.length%1013 !=0)
+			if(fileArray.length%1013 !=0 )
 			{
 				packetMap.put(packet_number, data);
-				/*
-				try {
-					packetMap.put(packet_number, data);
-					//sendpacket(this.routerAddress, this.serverAddress,data);
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				*/
 			}
-			/*
-			for(long key : packetMap.keySet())
-			{
-				try {
-					sendpacket(this.routerAddress,this.serverAddress,packetMap.get(key));
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-			*/
-			
+
 			this.packetTotal = packet_number;
+			
 			start = 1;
 			end =start +4;
-			if(end > this.packetTotal)//total oacket 17 5 10 15 20 but 20 >17
+			if(end > this.packetTotal)
 			{
 				end = this.packetTotal;
 			}
-			System.out.println("tain");
-			recall(start,end);
+			recall(start,end , PacketType.DATA);
 			
 		}
 		
 		
 
-		public void recall(long start,long end) 
+		public void recall(long start,long end,PacketType pt ) 
 		{
 			if (end > this.packetTotal)
 			{
@@ -216,7 +196,7 @@ public class UDPClient {
 			for(long i = start; i < end+1 ;i++)
 			{
 				try {
-					sendpacket(this.routerAddress,this.serverAddress,packetMap.get(i),PacketType.DATA);
+					sendpacket(this.routerAddress,this.serverAddress,packetMap.get(i), pt);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -226,7 +206,7 @@ public class UDPClient {
 			{
 				this.start = end +1;
 				this.end = this.start + 4;
-				recall(this.start,this.end);
+				recall(this.start,this.end, pt);
 			}
 		}
 		
@@ -276,16 +256,12 @@ public class UDPClient {
 	            //logger.info("Payload: {}",  payload);
 	            System.out.println("Seq "+resp.getSequenceNumber());
 	            System.out.println("Payload: "+payload);
-	            if(resp.getSequenceNumber() == this.packetTotal && pt.equals(PacketType.REQUEST))
-	            {
-	            			p = new Packet.Builder()
-		                    .setType(PacketType.TypeToNum(PacketType.FINISHREQ))
-		                    .setSequenceNumber(SequenceNumber++ + 1L)
-		                    .setPortNumber(serverAddr.getPort())
-		                    .setPeerAddress(serverAddr.getAddress())
-		                    .setPayload(by)
-		                    .create();
+	            if(resp.getSequenceNumber() == this.packetTotal && pt.equals(PacketType.DATA))
+	            {			
+	            			System.out.println("Traing, blu,blu "+ this.packetTotal);
+	            			sendpacket(this.routerAddress,this.serverAddress,by, PacketType.FINISHREQ);
 	            }
+	    
 	            keys.clear();
 	        }
 	    }

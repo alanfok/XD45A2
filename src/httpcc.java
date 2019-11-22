@@ -225,11 +225,10 @@ public class httpcc {
 				//wtr.flush();
 				client.run();
 				//client.run2(sendMessage.getBytes());
-				System.out.println("Train,blu,blu");
 				byte [] brr = sendMessage.getBytes();
 				System.out.println(brr.length);
 				System.out.println(brr);
-				client.run2(brr);
+				client.sendHTTP(brr);
 				
 //				System.out.println("*************************************************");
 //				System.out.println("-----Server response-----------");

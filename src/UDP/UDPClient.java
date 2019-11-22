@@ -59,6 +59,7 @@ public class UDPClient {
 		
 		public void run2(byte fileArray[]) 
 		{
+		
 			long packet_number = 1;
 			System.out.println("file bypt len : "+ fileArray.length);
 			byte[] data = new byte[1013];
@@ -129,6 +130,82 @@ public class UDPClient {
 			recall(start,end);
 			
 		}
+		
+		public void sendHTTP(byte fileArray[]) 
+		{
+		
+			long packet_number = 1;
+			System.out.println("file bypt len : "+ fileArray.length);
+			byte[] data = new byte[1013];
+			int index = 0;
+			System.out.println();
+			for(byte by: fileArray) 
+			{
+				if(index==1013)
+				{
+					packetMap.put(packet_number, data);
+					packet_number ++;
+					/*
+					try {
+						packetMap.put(packet_number, data);
+						//sendpacket(this.routerAddress, this.serverAddress,data);
+						packet_number ++;
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					*/
+					data= new byte[1013];
+					index = 0;
+					data[index] = by;
+					index ++;					
+				}
+				else 
+				{
+					data[index] = by;
+					index ++;
+				}	
+			}
+			
+			// put the packet Array if something remaining
+			if(fileArray.length%1013 !=0)
+			{
+				packetMap.put(packet_number, data);
+				/*
+				try {
+					packetMap.put(packet_number, data);
+					//sendpacket(this.routerAddress, this.serverAddress,data);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				*/
+			}
+			/*
+			for(long key : packetMap.keySet())
+			{
+				try {
+					sendpacket(this.routerAddress,this.serverAddress,packetMap.get(key));
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			*/
+			
+			this.packetTotal = packet_number;
+			start = 1;
+			end =start +4;
+			if(end > this.packetTotal)//total oacket 17 5 10 15 20 but 20 >17
+			{
+				end = this.packetTotal;
+			}
+			System.out.println("tain");
+			recall(start,end);
+			
+		}
+		
+		
 
 		public void recall(long start,long end) 
 		{
@@ -139,7 +216,7 @@ public class UDPClient {
 			for(long i = start; i < end+1 ;i++)
 			{
 				try {
-					sendpacket(this.routerAddress,this.serverAddress,packetMap.get(i));
+					sendpacket(this.routerAddress,this.serverAddress,packetMap.get(i),PacketType.DATA);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -153,14 +230,14 @@ public class UDPClient {
 			}
 		}
 		
-		private void sendpacket(SocketAddress routerAddr, InetSocketAddress serverAddr,byte by[]) throws IOException {
+		private void sendpacket(SocketAddress routerAddr, InetSocketAddress serverAddr,byte by[],PacketType pt) throws IOException {
 	       
 			try(DatagramChannel channel = DatagramChannel.open()){
 				long s = SequenceNumber ;
 	            //String msg = "send packet";
 	            //System.out.println(msg.getBytes());
 	            Packet p = new Packet.Builder()
-	                    .setType(PacketType.TypeToNum(PacketType.TEST))
+	                    .setType(PacketType.TypeToNum(pt))
 	                    .setSequenceNumber(SequenceNumber++ + 1L)
 	                    .setPortNumber(serverAddr.getPort())
 	                    .setPeerAddress(serverAddr.getAddress())
@@ -199,6 +276,16 @@ public class UDPClient {
 	            //logger.info("Payload: {}",  payload);
 	            System.out.println("Seq "+resp.getSequenceNumber());
 	            System.out.println("Payload: "+payload);
+	            if(resp.getSequenceNumber() == this.packetTotal && pt.equals(PacketType.REQUEST))
+	            {
+	            			p = new Packet.Builder()
+		                    .setType(PacketType.TypeToNum(PacketType.FINISHREQ))
+		                    .setSequenceNumber(SequenceNumber++ + 1L)
+		                    .setPortNumber(serverAddr.getPort())
+		                    .setPeerAddress(serverAddr.getAddress())
+		                    .setPayload(by)
+		                    .create();
+	            }
 	            keys.clear();
 	        }
 	    }
@@ -294,7 +381,7 @@ public class UDPClient {
 	            String payload = new String(resp.getPayload(), StandardCharsets.UTF_8);
 	            //logger.info("Payload: {}",  payload);
 	            System.out.println("Payload: "+payload);
-	            if(PacketType.NumToType(type).equals(PacketType.SYN)) 
+	            if(PacketType.NumToType(type).equals(PacketType.SYNACK)) 
 	            {
 	            	this.SequenceNumber = resp.getSequenceNumber();
 	            	System.out.println("Seq "+this.SequenceNumber);

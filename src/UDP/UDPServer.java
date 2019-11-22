@@ -12,6 +12,7 @@ import static java.util.Arrays.asList;
 
 public class UDPServer {
     //private static final Logger logger = LoggerFactory.getLogger(UDPServer.class);
+	public String http = "";
     public UDPServer() 
     {
     }
@@ -74,14 +75,28 @@ public class UDPServer {
                 			.setType(PacketType.TypeToNum(PacketType.ACK))
                 			.create();  
                 }
+                else if (PacketType.NumToType(type).equals(PacketType.FINISHREQ))
+                {
+                	
+                }
                 else if (PacketType.NumToType(type).equals(PacketType.TEST))
                 {
-                	String msg = "i got some data";
+                	String msg = new String(packet.getPayload(), UTF_8);
                 	System.out.println(msg);
                 	resp = packet.toBuilder()
                 			.setType(PacketType.TypeToNum(PacketType.ACK))
                 			.setSequenceNumber(packet.getSequenceNumber())
                 			.setPayload(msg.getBytes())
+                			.create();         
+                }
+                else if (PacketType.NumToType(type).equals(PacketType.DATA))
+                {
+                	http = http + new String(packet.getPayload(), UTF_8);
+                	System.out.println(http);
+                	resp = packet.toBuilder()
+                			.setType(PacketType.TypeToNum(PacketType.ACK))
+                			.setSequenceNumber(packet.getSequenceNumber())
+                			.setPayload(http.getBytes())
                 			.create();         
                 }
                 else

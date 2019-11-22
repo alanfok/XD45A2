@@ -28,10 +28,10 @@ public class httpcc {
 	public static void main(String[] args) throws Exception {
 //	    String argArr [] ;
 //	   
-//		int routerPort = 3000;
-//		int serverPort = 8007;
-//		String routerHost = "localhost";
-//		String serverHost = "localhost";
+		int routerPort = 3000;
+		int serverPort = 8007;
+		String routerHost = "localhost";
+		String serverHost = "localhost";
 //		Scanner sc = new Scanner(System.in);
 //	    System.out.println("Enter arg");
 //	    
@@ -44,7 +44,7 @@ public class httpcc {
 //	    
 //	   
 //	   // System.out.println(bytearr);
-//		UDPClient client = new UDPClient(routerHost, routerPort,serverHost,serverPort);
+		UDPClient client = new UDPClient(routerHost, routerPort,serverHost,serverPort);
 //		//client.bytearr = bytearr;
 //		//client.runClient();
 //		String getCommand = "";
@@ -178,6 +178,10 @@ public class httpcc {
 				        			header.put(temp[0], temp[1]);
 				        		}
 				        	}
+				        	if(commandArr[i].equalsIgnoreCase("-f"))
+				        	{
+				        		
+				        	}
 				        }
 					}
 					catch(Exception e) {
@@ -186,9 +190,9 @@ public class httpcc {
 				}
 				
 				InetAddress address = InetAddress.getByName(host);
-				socket = new Socket(host, port);
+				//socket = new Socket(host, port);
 				
-				PrintWriter wtr = new PrintWriter(socket.getOutputStream());
+				//PrintWriter wtr = new PrintWriter(socket.getOutputStream());
 				if(urlArg!=null) 
 				{
 					getCommand = urlArg;
@@ -216,46 +220,51 @@ public class httpcc {
 				
 				System.out.println("\n*************************************************");
 				System.out.println("Message sent to the server:\n" + sendMessage);
-				wtr.print(sendMessage);
-				wtr.print("");
-				wtr.flush();
+				//wtr.print(sendMessage);
+				//wtr.print("");
+				//wtr.flush();
+				client.run();
+				//client.run2(sendMessage.getBytes());
+				System.out.println("Train,blu,blu");
+				byte [] brr = sendMessage.getBytes();
+				System.out.println(brr.length);
+				System.out.println(brr);
+				client.run2(brr);
 				
-				
-
-				System.out.println("*************************************************");
-				System.out.println("-----Server response-----------");
-				// Get the return message from the server
-				java.io.InputStream is = socket.getInputStream();
-				InputStreamReader isr = new InputStreamReader(is);
-				BufferedReader br = new BufferedReader(isr);
-				//String message = br.readLine();
-
-				//reading stream input
-			
-				String line = br.readLine();
-				while (line != null) {
-					System.out.println(line);
-					line = br.readLine();
-					
-				}
-				
-				
-				//bw.flush();
-				br.close();
-				wtr.close();
-				System.out.println("*************************************************");
-				System.out.println("End of message exchange!!! ");
+//				System.out.println("*************************************************");
+//				System.out.println("-----Server response-----------");
+//				// Get the return message from the server
+//				java.io.InputStream is = socket.getInputStream();
+//				InputStreamReader isr = new InputStreamReader(is);
+//				BufferedReader br = new BufferedReader(isr);
+//				//String message = br.readLine();
+//
+//				//reading stream input
+//			
+//				String line = br.readLine();
+//				while (line != null) {
+//					System.out.println(line);
+//					line = br.readLine();
+//					
+//				}
+//				
+//				
+//				//bw.flush();
+//				br.close();
+//				wtr.close();
+//				System.out.println("*************************************************");
+//				System.out.println("End of message exchange!!! ");
 				
 				//System.out.println("Message received from the server : " + message);
 			} catch (Exception exception) {
 				exception.printStackTrace();
 			} finally {
 				// Closing the socket
-				try {
-					socket.close();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+//				try {
+//					socket.close();
+//				} catch (Exception e) {
+//					e.printStackTrace();
+//				}
 			}
 		}
 	}

@@ -143,11 +143,13 @@ public class UDPServer {
                 			for(long key : packetMap.keySet())
                 			{
                 				System.out.println(key);
+                				System.out.println(packetMap.get(key).length);
 	                			resp = packet.toBuilder()
-	                					.setSequenceNumber(key)
-	                					.setPayload(packetMap.get(key))//send
+	                					.setSequenceNumber(key)		
 	                					.setType(PacketType.TypeToNum(PacketType.DATA))
+	                					.setPayload(packetMap.get(key))//send
 	                					.create();  
+	                			System.out.println(resp.toBuffer().capacity());
 	                			channel.send(resp.toBuffer(), router);
 	                			revKey = key;
 	                			//this.serverSeq ++;
@@ -158,7 +160,8 @@ public class UDPServer {
                 			resp = packet.toBuilder()
                 					.setSequenceNumber(revKey+1)
                 					.setType(PacketType.TypeToNum(PacketType.FINISHREQ))
-                					.create();  
+                					.create(); 
+                		    System.out.println(resp.toBuffer().limit());
                 			channel.send(resp.toBuffer(), router);
                 			
                 			

@@ -278,26 +278,35 @@ public class UDPClient {
 	            	this.revMap.put(resp.getSequenceNumber(), resp);
 	            	System.out.println("Seq :"+resp.getSequenceNumber());
 	            	payload = new String(resp.getPayload(), StandardCharsets.UTF_8);
+	            	sendpacketACK(this.routerAddress,this.serverAddress,by, PacketType.ACK, resp.getSequenceNumber());
 	            	//System.out.println("Payload :"+ payload);
 	                while(true) 
 	                {
-	       	            if(resp.getType() == PacketType.TypeToNum(PacketType.FINISHREQ))
-	    	            {
-	    	            	break;
-	    	            }
+	       	            
 	                    buf.clear();
-	                    buf = ByteBuffer.allocate(Packet.MAX_LEN);
+	                    //buf = ByteBuffer.allocate(Packet.MAX_LEN);
 	    	            router = channel.receive(buf);
 	    	            buf.flip();
-	    	            resp = Packet.fromBuffer(buf);
+	    	            if(buf.limit()!=0)
+	    	            {
+	    	            	resp = Packet.fromBuffer(buf);
+	    	                this.revMap.put(resp.getSequenceNumber(), resp);
+	    	                System.out.println(PacketType.NumToType(resp.getType()));
+	    	                if(PacketType.NumToType(resp.getType()).equals(PacketType.FINISHREQ))
+		    	            {
+		    	            	break;
+		    	            }
+		 
+		    	            System.out.println("Seq :"+resp.getSequenceNumber());
+		    	            sendpacketACK(this.routerAddress,this.serverAddress,by, PacketType.ACK, resp.getSequenceNumber());
+	    	            }
 	    	            //logger.info("Packet: {}", resp);
 	    	            //logger.info("Router: {}", router);
 	    	            //System.out.println("Packet: "+resp);
 	    	           // System.out.println("Router: "+router);
 	    	            //payload = new String(resp.getPayload(), StandardCharsets.UTF_8);
 	    	            //logger.info("Payload: {}",  payload);
-	    	            this.revMap.put(resp.getSequenceNumber(), resp);
-	    	            System.out.println("Seq :"+resp.getSequenceNumber());
+	    	      
 	 
 	    	            //System.out.println("Payload: "+payload);
 	    	           // System.out.println("Type : "+PacketType.NumToType(resp.getType()));
@@ -315,6 +324,29 @@ public class UDPClient {
 	            	//keys.clear();
 	            }
 	            
+	        }
+	    }
+		
+		private void sendpacketACK(SocketAddress routerAddr, InetSocketAddress serverAddr,byte by[],PacketType pt, long sq) throws IOException {
+		       
+			try(DatagramChannel channel = DatagramChannel.open()){
+				long s = SequenceNumber ;
+	            String msg = "this is ACK "+ sq;
+	            //System.out.println(msg.getBytes());
+	            Packet p = new Packet.Builder()
+	                    .setType(PacketType.TypeToNum(pt))
+	                    .setSequenceNumber(sq)
+	                    .setPortNumber(serverAddr.getPort())
+	                    .setPeerAddress(serverAddr.getAddress())
+	                    .setPayload(msg.getBytes())
+	                    .create();
+	 
+	            channel.send(p.toBuffer(), routerAddr);
+
+	   //         logger.info("Sending \"{}\" to router at {}", msg, routerAddr);
+	           // System.out.println("Sending "+msg+" to router at "+routerAddr);
+	            // Try to receive a packet within timeout
+	   
 	        }
 	    }
 		

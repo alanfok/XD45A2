@@ -6,6 +6,7 @@ import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.DatagramChannel;
+import java.util.HashMap;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
@@ -14,8 +15,12 @@ public class UDPServer {
     //private static final Logger logger = LoggerFactory.getLogger(UDPServer.class);
 	public String http = "";
 	public long serverSeq = 1;
+	public HashMap<Long, byte []> packetMap;
+	public long packetTotal;
+	
     public UDPServer() 
     {
+    	this.packetMap = new HashMap<Long, byte []>();
     }
      public void listenAndServe(int port) throws IOException {
 
@@ -37,7 +42,7 @@ public class UDPServer {
                 buf.flip();
                 int type = packet.getType();
               
-                System.out.println("Type: "+type);
+                System.out.println("Type: "+PacketType.NumToType(type));
                
                 //logger.info("Router: {}", router);
 
@@ -63,7 +68,13 @@ public class UDPServer {
                 }
                 else if (PacketType.NumToType(type).equals(PacketType.ACK))
                 {
-                	
+                	String payload = new String(packet.getPayload(), UTF_8);
+                    System.out.println("Packet: "+packet);
+                    //logger.info("Packet: {}", packet);
+                    System.out.println("Payload: "+payload);
+                    //logger.info("Payload: {}", payload);
+                    System.out.println("Router: "+router);
+                    System.out.println("seq " + packet.getSequenceNumber());
                 }
                 
                 else if (PacketType.NumToType(type).equals(PacketType.FINISHREQ))
@@ -90,15 +101,69 @@ public class UDPServer {
                 		else if(Request.instance().getCommand().contains("/")&&Request.instance().getCommand().length()>1)
                 		{
                 			
-                			System.out.println("len "+response.getBytes().length);
+                			long packet_number = 1;
                 			response = fs.sendfilesForA3(Request.instance().getCommand());
+                			System.out.println("len "+response.getBytes().length);
+                			byte fileArray [] = response.getBytes();
+
+
+                			////
+                			byte[] data = new byte[1013];
+                			int index = 0;
+                			System.out.println();
+                			for(byte by: fileArray) 
+                			{
+                				if(index==1013)
+                				{
+                					packetMap.put(packet_number, data);
+                					packet_number ++;
+                					data= new byte[1013];
+                					index = 0;
+                					data[index] = by;
+                					index ++;					
+                				}
+                				else 
+                				{
+                					data[index] = by;
+                					index ++;
+                				}	
+                			}
+                			
+                			// put the packet Array if something remaining
+                			if(fileArray.length % 1013 !=0)
+                			{
+                				packetMap.put(packet_number, data);
+                			}
+
+                			this.packetTotal = packet_number;
+                			////
+                			long revKey = 0;
+                			
+                			
+                			for(long key : packetMap.keySet())
+                			{
+                				System.out.println(key);
+	                			resp = packet.toBuilder()
+	                					.setSequenceNumber(key)
+	                					.setPayload(packetMap.get(key))//send
+	                					.setType(PacketType.TypeToNum(PacketType.DATA))
+	                					.create();  
+	                			channel.send(resp.toBuffer(), router);
+	                			revKey = key;
+	                			//this.serverSeq ++;
+                			}
+                			
+                			
+                			
                 			resp = packet.toBuilder()
-                					.setSequenceNumber(this.serverSeq)
-                					.setPayload(response.getBytes())
-                					.setType(PacketType.TypeToNum(PacketType.DATA))
+                					.setSequenceNumber(revKey+1)
+                					.setType(PacketType.TypeToNum(PacketType.FINISHREQ))
                 					.create();  
                 			channel.send(resp.toBuffer(), router);
-                			this.serverSeq ++;
+                			
+                			
+                			
+                			
                 		}
                 		else
                 		{
@@ -120,19 +185,6 @@ public class UDPServer {
                 	}
                 }
                 
-                
-                
-                else if (PacketType.NumToType(type).equals(PacketType.TEST))
-                {
-                	String msg = new String(packet.getPayload(), UTF_8);
-                	System.out.println(msg);
-                	resp = packet.toBuilder()
-                			.setType(PacketType.TypeToNum(PacketType.ACK))
-                			.setSequenceNumber(packet.getSequenceNumber())
-                			.setPayload(msg.getBytes())
-                			.create(); 
-                	channel.send(resp.toBuffer(), router);
-                }
                 else if (PacketType.NumToType(type).equals(PacketType.DATA))
                 {
                 	http = http + new String(packet.getPayload(), UTF_8);
@@ -143,9 +195,7 @@ public class UDPServer {
                 			.setPayload(http.getBytes())
                 			.create();    
                 	channel.send(resp.toBuffer(), router);
-                }
-                
-                
+                }             
                 else
                 {
                 	 String payload = new String(packet.getPayload(), UTF_8);
@@ -163,4 +213,6 @@ public class UDPServer {
             }
         }
 }
+
+
 }

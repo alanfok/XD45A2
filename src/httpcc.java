@@ -226,8 +226,6 @@ public class httpcc {
 				client.run();
 				//client.run2(sendMessage.getBytes());
 				byte [] brr = sendMessage.getBytes();
-				System.out.println(brr.length);
-				System.out.println(brr);
 				client.sendHTTP(brr);
 				
 //				System.out.println("*************************************************");

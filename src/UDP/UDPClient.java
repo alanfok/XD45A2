@@ -26,14 +26,18 @@ public class UDPClient {
 		public InetSocketAddress serverAddress;
 		public byte [] bytearr;
 		public HashMap<Long, byte []> packetMap;
+		public HashMap<Long, Packet> revMap;
 		public long start;
 		public long end;
 		public int windowSize;
 		public long packetTotal;
+		public boolean lock = false;
+		
 		
 		public UDPClient (String routerHost , int routerPort , String serverHost, int serverPort) 
 		{
 			 this.packetMap = new HashMap<Long, byte []>();
+			 this.revMap = new HashMap<Long, Packet>();
 			 this.routerHost = routerHost;
 			 this.routerPort = routerPort;
 			 this.serverHost = serverHost;
@@ -248,21 +252,69 @@ public class UDPClient {
 	            SocketAddress router = channel.receive(buf);
 	            buf.flip();
 	            Packet resp = Packet.fromBuffer(buf);
-	            //logger.info("Packet: {}", resp);
-	            //logger.info("Router: {}", router);
-	            System.out.println("Packet: "+resp);
-	            System.out.println("Router: "+router);
+
 	            String payload = new String(resp.getPayload(), StandardCharsets.UTF_8);
-	            //logger.info("Payload: {}",  payload);
-	            System.out.println("Seq "+resp.getSequenceNumber());
-	            System.out.println("Payload: "+payload);
+	            
+	            if(resp.getType() != PacketType.TypeToNum(PacketType.DATA))
+	            {
+		            System.out.println("Packet: "+resp);
+		            System.out.println("Router: "+router);
+		            System.out.println("Seq "+resp.getSequenceNumber());
+		            System.out.println("Payload: "+payload);
+		            System.out.println("Type : "+PacketType.NumToType(resp.getType()));
+	            }
 	            if(resp.getSequenceNumber() == this.packetTotal && pt.equals(PacketType.DATA))
 	            {			
-	            			System.out.println("Traing, blu,blu "+ this.packetTotal);
 	            			sendpacket(this.routerAddress,this.serverAddress,by, PacketType.FINISHREQ);
+	            		     keys.clear();
+
 	            }
-	    
-	            keys.clear();
+	            else if(resp.getType() == PacketType.TypeToNum(PacketType.ACK) && !(resp.getSequenceNumber() == this.packetTotal))
+	            {
+	            	
+	            }
+	            else if(resp.getType() == PacketType.TypeToNum(PacketType.DATA))
+	            {
+	            	this.revMap.put(resp.getSequenceNumber(), resp);
+	            	System.out.println("Seq :"+resp.getSequenceNumber());
+	            	payload = new String(resp.getPayload(), StandardCharsets.UTF_8);
+	            	//System.out.println("Payload :"+ payload);
+	                while(true) 
+	                {
+	       	            if(resp.getType() == PacketType.TypeToNum(PacketType.FINISHREQ))
+	    	            {
+	    	            	break;
+	    	            }
+	                    buf.clear();
+	                    buf = ByteBuffer.allocate(Packet.MAX_LEN);
+	    	            router = channel.receive(buf);
+	    	            buf.flip();
+	    	            resp = Packet.fromBuffer(buf);
+	    	            //logger.info("Packet: {}", resp);
+	    	            //logger.info("Router: {}", router);
+	    	            //System.out.println("Packet: "+resp);
+	    	           // System.out.println("Router: "+router);
+	    	            //payload = new String(resp.getPayload(), StandardCharsets.UTF_8);
+	    	            //logger.info("Payload: {}",  payload);
+	    	            this.revMap.put(resp.getSequenceNumber(), resp);
+	    	            System.out.println("Seq :"+resp.getSequenceNumber());
+	 
+	    	            //System.out.println("Payload: "+payload);
+	    	           // System.out.println("Type : "+PacketType.NumToType(resp.getType()));
+	            	//sendpacket(this.routerAddress,this.serverAddress,by, PacketType.ACK);
+	                }
+	                
+	                for(long revKey : revMap.keySet())
+	                {
+	                	payload = new String(revMap.get(revKey).getPayload(), StandardCharsets.UTF_8);
+	                	//System.out.println(payload);
+	                }
+	            }
+	            else
+	            {
+	            	//keys.clear();
+	            }
+	            
 	        }
 	    }
 		
@@ -361,7 +413,7 @@ public class UDPClient {
 	            {
 	            	this.SequenceNumber = resp.getSequenceNumber();
 	            	System.out.println("Seq "+this.SequenceNumber);
-	            	System.out.println("ACK from server.");
+	            	System.out.println("Type: " +PacketType.NumToType(type));
 	            	System.out.println("2/3 handshake.");
 	            	//runClient(routerAddr,serverAddr);
 	            	String msg1 ="3/3 handshake";

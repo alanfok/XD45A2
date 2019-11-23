@@ -275,16 +275,17 @@ public class UDPClient {
 	            }
 	            else if(resp.getType() == PacketType.TypeToNum(PacketType.DATA))
 	            {
+	            	
+	            	
 	            	this.revMap.put(resp.getSequenceNumber(), resp);
 	            	System.out.println("Seq :"+resp.getSequenceNumber());
 	            	payload = new String(resp.getPayload(), StandardCharsets.UTF_8);
 	            	sendpacketACK(this.routerAddress,this.serverAddress,by, PacketType.ACK, resp.getSequenceNumber());
-	            	//System.out.println("Payload :"+ payload);
+	            	System.out.println("Payload :"+ payload);
 	                while(true) 
 	                {
 	       	            
 	                    buf.clear();
-	                    //buf = ByteBuffer.allocate(Packet.MAX_LEN);
 	    	            router = channel.receive(buf);
 	    	            buf.flip();
 	    	            if(buf.limit()!=0)
@@ -300,24 +301,15 @@ public class UDPClient {
 		    	            System.out.println("Seq :"+resp.getSequenceNumber());
 		    	            sendpacketACK(this.routerAddress,this.serverAddress,by, PacketType.ACK, resp.getSequenceNumber());
 	    	            }
-	    	            //logger.info("Packet: {}", resp);
-	    	            //logger.info("Router: {}", router);
-	    	            //System.out.println("Packet: "+resp);
-	    	           // System.out.println("Router: "+router);
-	    	            //payload = new String(resp.getPayload(), StandardCharsets.UTF_8);
-	    	            //logger.info("Payload: {}",  payload);
-	    	      
-	 
-	    	            //System.out.println("Payload: "+payload);
-	    	           // System.out.println("Type : "+PacketType.NumToType(resp.getType()));
-	            	//sendpacket(this.routerAddress,this.serverAddress,by, PacketType.ACK);
 	                }
 	                
+	                payload ="";
 	                for(long revKey : revMap.keySet())
 	                {
-	                	payload = new String(revMap.get(revKey).getPayload(), StandardCharsets.UTF_8);
-	                	//System.out.println(payload);
+	                	payload = payload + new String(revMap.get(revKey).getPayload(), StandardCharsets.UTF_8);                	
 	                }
+	                
+	              System.out.println(payload);
 	            }
 	            else
 	            {

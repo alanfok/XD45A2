@@ -17,6 +17,11 @@ public class UDPServer {
 	public long serverSeq = 1;
 	public HashMap<Long, byte []> packetMap;
 	public long packetTotal;
+	public long start;
+	public long end;
+	public long ackNum ;
+	
+	
 	
     public UDPServer() 
     {
@@ -66,17 +71,18 @@ public class UDPServer {
                 			.create();  
                    	channel.send(resp.toBuffer(), router);
                 }
+                // after recieve ack
                 else if (PacketType.NumToType(type).equals(PacketType.ACK))
                 {
                 	String payload = new String(packet.getPayload(), UTF_8);
                     System.out.println("Packet: "+packet);
-                    //logger.info("Packet: {}", packet);
                     System.out.println("Payload: "+payload);
-                    //logger.info("Payload: {}", payload);
                     System.out.println("Router: "+router);
                     System.out.println("seq " + packet.getSequenceNumber());
+                    this.ackNum = packet.getSequenceNumber();
                 }
                 
+                ///after receive req
                 else if (PacketType.NumToType(type).equals(PacketType.FINISHREQ))
                 {
                 	String result = new String(packet.getPayload(), UTF_8);
@@ -140,7 +146,15 @@ public class UDPServer {
                 			long revKey = 0;
                 			
                 			
-                			for(long key : packetMap.keySet())
+                			this.start = 1;
+                			this.end = start + 2;
+                			if(this.end > this.packetTotal)
+                			{
+                				this.end = this.packetTotal;
+                			}
+                			
+                			
+                			for(long key  = this.start; key < this.end+1; key++)
                 			{
                 				System.out.println(key);
                 				System.out.println(packetMap.get(key).length);
@@ -155,7 +169,7 @@ public class UDPServer {
 	                			//this.serverSeq ++;
                 			}
                 			
-                			
+  
                 			
                 			resp = packet.toBuilder()
                 					.setSequenceNumber(revKey+1)
@@ -177,6 +191,14 @@ public class UDPServer {
                 	{
                 		 try {
 							response = fs.postGetFileForA3(Request.instance().getCommand(),Request.instance().getData());
+							resp = packet.toBuilder()
+                					.setSequenceNumber(0)		
+                					.setType(PacketType.TypeToNum(PacketType.ACK))
+                					.setPayload(response.getBytes())//send
+                					.create();  
+                			System.out.println(resp.toBuffer().capacity());
+                			channel.send(resp.toBuffer(), router);
+							
 						} catch (Exception e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -216,6 +238,9 @@ public class UDPServer {
             }
         }
 }
+     
+     
+     
 
 
 }
